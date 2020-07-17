@@ -1,0 +1,26 @@
+.connections-row {
+    position: relative;
+
+    &:nth-child(1).primary::after {
+        content: "primary";
+        background: #4290dc;
+        color: white;
+        position: absolute;
+        height: 23px;
+        width: 58px;
+        text-align: center;
+        top: -5px;
+        left: -5px;
+    }
+}
+
+
+@include media-breakpoint-down(md) {
+
+    .connections-row {
+        &:nth-child(1).primary::after {
+            left: auto;
+            right: -5px;
+        }
+    }
+}
