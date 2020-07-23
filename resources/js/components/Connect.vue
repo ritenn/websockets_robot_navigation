@@ -14,10 +14,10 @@
                 </div>
                 <div v-else class="connections-row row bg-light p-2 mb-2 m-1" v-for="config in configurationList" :class="{'primary': config.primary}">
                     <div class="col-lg-4 d-flex flex-column justify-content-center">
-                        <strong>{{config.name.value}}</strong>
+                        <strong>{{config.name}}</strong>
                     </div>
                     <div class="col-lg-4 mt-4 mt-lg-0 d-flex flex-column justify-content-center">
-                        {{config.hostname.value}}:{{config.port.value}}
+                        {{config.hostname}}:{{config.port}}
                     </div>
                     <div class="col-lg-4 text-right mt-4 mt-lg-0">
                         <button class="btn btn-success btn-block">

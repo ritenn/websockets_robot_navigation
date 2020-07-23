@@ -10,7 +10,7 @@ window.Vue = require('vue');
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import VueSweetalert2 from 'vue-sweetalert2';
 import { store } from './_store';
-
+import { validationDirective } from './directives/ValidationDirective';
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -29,6 +29,7 @@ Vue.component('connect', require('./components/Connect.vue').default);
 
 Vue.component('main-page', require('./pages/Main.vue').default);
 
+Vue.directive('validation', validationDirective)
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

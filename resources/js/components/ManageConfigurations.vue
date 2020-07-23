@@ -13,37 +13,35 @@
                         <i class="closed fa fa-plus"></i>
                     </b-button>
                     <h5 class="card-title">Create new robot configuration</h5>
+                {{this.configurationsErrors[0]}}
                 </div>
                 <b-collapse visible id="configuration" class="card-body bg-dark-light">
                 <form>
                     <div class="form-group">
-                        <label for="name">Configuration label name</label>
-                        <input type="text" v-model="configurationTemplate.name.value" class="form-control" :class="{'is-invalid': !configurationTemplate.name.valid}" id="name" aria-describedby="name" placeholder="e.g. Arduino Robot V1" required />
-                        <div class="invalid-feedback">That field cannot be empty or longer then 50 letters.</div>
+                        <label for="name">Configuration name</label>
+                        <input type="text" v-model="configurationTemplate.name" v-validation="[validationRules(configurationTemplate).name, null]" class="form-control" id="name" aria-describedby="name" placeholder="e.g. Arduino Robot V1" required />
                     </div>
                     <div class="form-group">
                         <label for="hostname">Hostname / IP</label>
-                        <input type="text" v-model="configurationTemplate.hostname.value" class="form-control" :class="{'is-invalid': !configurationTemplate.hostname.valid}"  id="hostname" aria-describedby="hostname" placeholder="192.168.x.x" required />
+                        <input type="text" v-model="configurationTemplate.hostname" class="form-control" v-validation="[validationRules(configurationTemplate).hostname, '']"  id="hostname" aria-describedby="hostname" placeholder="192.168.x.x" required />
                         <small class="form-text text-muted">IP of ESP8266 server module.</small>
-                        <div class="invalid-feedback">That field cannot be empty or longer then 12 digits.</div>
                     </div>
                     <div class="form-group">
                         <label for="port">Port</label>
-                        <input type="numeric" v-model="configurationTemplate.port.value" class="form-control" :class="{'is-invalid': !configurationTemplate.port.valid}"  id="port" placeholder="80" required>
-                        <div class="invalid-feedback">That field cannot be empty and must be numeric.</div>
+                        <input type="numeric" v-model="configurationTemplate.port" class="form-control" v-validation="[validationRules(configurationTemplate).port, '']"  id="port" placeholder="80" required />
                     </div>
                     <hr class="mt-5" />
                     <div class="form-group">
-                        <label for="rotation_speed">Initial rotation speed: <strong>{{configurationTemplate.speed.rotation}}</strong></label>
-                        <input type="range" v-model="configurationTemplate.speed.rotation" min="110" max="200" class="form-control-range" id="rotation_speed" required />
+                        <label for="rotation_speed">Initial rotation speed: <strong>{{configurationTemplate.rotation_speed}}</strong></label>
+                        <input type="range" v-model="configurationTemplate.rotation_speed" min="110" max="200" class="form-control-range" id="rotation_speed" required />
                     </div>
                     <div class="form-group">
-                        <label for="left_engine_speed">Initial left engine speed: <strong>{{configurationTemplate.speed.left}}</strong></label>
-                        <input type="range" v-model="configurationTemplate.speed.left" min="0" max="255" class="form-control-range" id="left_engine_speed" required />
+                        <label for="left_engine_speed">Initial left engine speed: <strong>{{configurationTemplate.left_engine_speed}}</strong></label>
+                        <input type="range" v-model="configurationTemplate.left_engine_speed" min="0" max="255" class="form-control-range" id="left_engine_speed" required />
                     </div>
                     <div class="form-group">
-                        <label for="right_engine_speed">Initial right engine speed: <strong>{{configurationTemplate.speed.right}}</strong></label>
-                        <input type="range" v-model="configurationTemplate.speed.right" min="0" max="255" class="form-control-range" id="right_engine_speed" required />
+                        <label for="right_engine_speed">Initial right engine speed: <strong>{{configurationTemplate.right_engine_speed}}</strong></label>
+                        <input type="range" v-model="configurationTemplate.right_engine_speed" min="0" max="255" class="form-control-range" id="right_engine_speed" required />
                     </div>
                 </form>
                 <button @click="add" class="btn btn-primary mt-5 pull-right">
@@ -69,7 +67,6 @@
                     <transition-group :name="'fade'" mode="slide-out">
                     <div class="card bg-dark mt-2" v-for="(config, index) in configurations" :key="index+1">
                         <div class="card-header">
-<!--                            remove(index)-->
                             <button @click="alertDelete(index)" class="btn btn-danger ml-2 float-right">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>
@@ -78,33 +75,30 @@
                                 <i class="closed fa fa-plus"></i>
                             </b-button>
 
-                            <h5 class="card-title">{{index + 1}}. {{config.name.value}} <small class="text-success" v-if="config.primary">- primary</small></h5>
+                            <h5 class="card-title">{{index + 1}}. {{config.name}} <small class="text-success" v-if="config.primary">- primary</small></h5>
                         </div>
                         <b-collapse :visible="index == 0" :id="'list-' + index" class="card-body bg-light">
                             <div class="form-group">
-                                <input type="text" v-model="config.name.value" class="form-control" :class="{'is-invalid': !config.name.valid}" aria-describedby="name" placeholder="Configuration label name" required />
-                                <div class="invalid-feedback">That field cannot be empty or longer then 50 letters.</div>
+                                <input type="text" v-model="config.name" class="form-control" v-validation="[validationRules(config).name, serverValidation(index, 'name')]" aria-describedby="name" placeholder="Configuration label name" required />
                             </div>
                             <div class="form-group">
-                                <input type="text" v-model="config.hostname.value" class="form-control" :class="{'is-invalid': !config.hostname.valid}" aria-describedby="hostname" placeholder="192.168.x.x" required />
-                                <div class="invalid-feedback">That field cannot be empty or longer then 12 digits.</div>
+                                <input type="text" v-model="config.hostname" class="form-control" v-validation="[validationRules(config).hostname, serverValidation(index, 'hostname')]" aria-describedby="hostname" placeholder="192.168.x.x" required />
                             </div>
                             <div class="form-group">
-                                <input type="numeric" v-model="config.port.value" class="form-control" :class="{'is-invalid': !config.port.valid}" placeholder="80" required />
-                                <div class="invalid-feedback">That field cannot be empty and must be numeric.</div>
+                                <input type="numeric" v-model="config.port" class="form-control" v-validation="[validationRules(config).port, serverValidation(index, 'port')]" placeholder="80" required />
                             </div>
 
                             <div class="form-group">
-                                <label>Initial rotation speed: <strong>{{config.speed.rotation}}</strong></label>
-                                <input type="range" v-model="config.speed.rotation" min="110" max="200" class="form-control-range" required />
+                                <label>Initial rotation speed: <strong>{{config.rotation_speed}}</strong></label>
+                                <input type="range" v-model="config.rotation_speed" min="110" max="200" class="form-control-range" required />
                             </div>
                             <div class="form-group">
-                                <label>Initial left engine speed: <strong>{{config.speed.left}}</strong></label>
-                                <input type="range" v-model="config.speed.left" min="0" max="255" class="form-control-range" required />
+                                <label>Initial left engine speed: <strong>{{config.left_engine_speed}}</strong></label>
+                                <input type="range" v-model="config.left_engine_speed" min="0" max="255" class="form-control-range" required />
                             </div>
                             <div class="form-group">
-                                <label>Initial right engine speed: <strong>{{config.speed.right}}</strong></label>
-                                <input type="range" v-model="config.speed.right" min="0" max="255" class="form-control-range" required />
+                                <label>Initial right engine speed: <strong>{{config.right_engine_speed}}</strong></label>
+                                <input type="range" v-model="config.right_engine_speed" min="0" max="255" class="form-control-range" required />
                             </div>
                             <div class="form-group mt-4">
                                 <input @click="primarySetting(index, $event)" :id="'primary-' + index" type="checkbox" value="1" v-model="config.primary" class="form-control-checkbox" />
@@ -127,20 +121,25 @@
 
     export default {
         computed: {
-            ...mapState('connections', ['openManager', 'configurationList'])
+            ...mapState('connections', ['openManager', 'configurationList', 'configurationsErrors'])
         },
         data() {
             return {
                 configurationTemplate: this.initialConfig(),
                 configurations: [],
-                isUnsaved: false
+                isUnsaved: false,
             }
         },
         created() {
-            this.configurations = this.configurationList;
+            this.getList();
+        },
+        watch: {
+            configurationList: function (val) {
+                this.configurations = val;
+            }
         },
         methods: {
-            ...mapActions('connections', ['manageConnections', 'updateOrCreate']),
+            ...mapActions('connections', ['manageConnections', 'updateOrCreate', 'getList', 'remove', 'resetErrors']),
             returnToConnections()
             {
                 if (this.isUnsaved)
@@ -155,42 +154,28 @@
             },
             save()
             {
-               if(this.validateAllConfigurationsData())
-               {
-                   this.isUnsaved = false;
-                   const {configurations} = this;
-                   this.updateOrCreate(configurations);
-               }
-            },
-            validateAllConfigurationsData()
-            {
-                let isValid = true;
-                for (const obj of this.configurations) {
-                    if (!this.isValid(obj))
-                    {
-                        isValid = false;
-                    }
-                }
+                var elems = document.querySelectorAll(".is-invalid");
 
-                return isValid;
+                [].forEach.call(elems, function(el) {
+                    el.classList.remove("is-invalid");
+                });
+
+                if (this.isValid())
+                {
+                    this.isUnsaved = false;
+                    const {configurations} = this;
+
+                    this.updateOrCreate(configurations);
+                }
             },
             add()
             {
-                if (this.isValid(this.configurationTemplate))
+                if (this.isValid())
                 {
                     this.isUnsaved = true;
                     this.configurations.push(JSON.parse(JSON.stringify(this.configurationTemplate)));
                     this.configurationTemplate = this.initialConfig();
                 }
-            },
-            remove(el)
-            {
-                if (this.configurations.splice(el, 1))
-                {
-                    return true
-                }
-
-                return false
             },
             primarySetting(index, event)
             {
@@ -240,12 +225,16 @@
                     showLoaderOnConfirm: true
                 }).then((result) => {
                     if(result.value) {
-                        if (_this.remove(index))
+
+                        if (_this.configurations[index].id !== undefined)
                         {
-                            this.$swal('Deleted', 'You successfully deleted this row', 'success')
+                            _this.remove(_this.configurations[index].id);
                         } else {
-                            this.$swal('Failed', 'Failed to deleted this row', 'error')
+                            _this.configurations.splice(index, 1)
                         }
+
+                        this.$swal('Deleted', 'You successfully deleted this row', 'success');
+
                     } else {
                         this.$swal('Cancelled', 'Be careful next time', 'info')
                     }
@@ -259,24 +248,14 @@
             initialConfig()
             {
                 return {
+                    uuid: "",
                     primary: 0,
-                    name: {
-                        value: "",
-                        valid: true
-                    },
-                    hostname: {
-                        value: "",
-                        valid: true
-                    },
-                    port: {
-                        value: "",
-                        valid: true
-                    },
-                    speed: {
-                        rotation: 140,
-                        left: 90,
-                        right: 90
-                    }
+                    name: "test",
+                    hostname: "182.168.12.123",
+                    port: 80,
+                    rotation_speed: 140,
+                    left_engine_speed: 90,
+                    right_engine_speed: 90
                 }
             },
             /**
@@ -287,16 +266,31 @@
              */
             isValid(model)
             {
-                const name = model.name.value;
-                const hostname = model.hostname.value;
-                const port = model.port.value;
-
-                model.name.valid = name.length === 0 || name.length > 50 ? false : true;
-                model.hostname.valid = hostname.length === 0 || hostname.length > 15 || !((/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/).test(hostname)) ? false : true;
-                model.port.valid = port.length === 0 || !(/^\d+$/.test(port)) ? false : true;
-
-                return model.name.valid && model.hostname.valid && model.port.valid ? true : false;
+                return document.querySelectorAll('.is-invalid').length === 0 ? true : false;
             },
+            validationRules(model)
+            {
+                return {
+                    name: {
+                        rule: model.name.length === 0 || model.name.length > 50 ? false : true,
+                        message: "That field cannot be empty or longer then 50 letters."
+                    },
+                    hostname: {
+                        rule: model.hostname.length === 0 || model.hostname.length > 15 || !((/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/).test(model.hostname)) ? false : true,
+                        message: "That field cannot be empty or longer then 12 digits."
+                    },
+                    port: {
+                        rule: model.port.length === 0 || !(/^\d+$/.test(model.port)) ? false : true,
+                        message: "That field cannot be empty and must be numeric."
+                    }
+                }
+
+            },
+            serverValidation(index, name)
+            {
+                return this.configurationsErrors[index + '.' + name] ?? null;
+            }
+
         },
     }
 </script>

@@ -1989,12 +1989,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -2119,15 +2113,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])('connections', ['openManager', 'configurationList'])),
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])('connections', ['openManager', 'configurationList', 'configurationsErrors'])),
   data: function data() {
     return {
       configurationTemplate: this.initialConfig(),
@@ -2136,9 +2124,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
   },
   created: function created() {
-    this.configurations = this.configurationList;
+    this.getList();
   },
-  methods: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])('connections', ['manageConnections', 'updateOrCreate'])), {}, {
+  watch: {
+    configurationList: function configurationList(val) {
+      this.configurations = val;
+    }
+  },
+  methods: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])('connections', ['manageConnections', 'updateOrCreate', 'getList', 'remove', 'resetErrors'])), {}, {
     returnToConnections: function returnToConnections() {
       if (this.isUnsaved) {
         this.alertUnsaved();
@@ -2147,47 +2140,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
     },
     save: function save() {
-      if (this.validateAllConfigurationsData()) {
+      var elems = document.querySelectorAll(".is-invalid");
+      [].forEach.call(elems, function (el) {
+        el.classList.remove("is-invalid");
+      });
+
+      if (this.isValid()) {
         this.isUnsaved = false;
         var configurations = this.configurations;
         this.updateOrCreate(configurations);
       }
     },
-    validateAllConfigurationsData: function validateAllConfigurationsData() {
-      var isValid = true;
-
-      var _iterator = _createForOfIteratorHelper(this.configurations),
-          _step;
-
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var obj = _step.value;
-
-          if (!this.isValid(obj)) {
-            isValid = false;
-          }
-        }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
-
-      return isValid;
-    },
     add: function add() {
-      if (this.isValid(this.configurationTemplate)) {
+      if (this.isValid()) {
         this.isUnsaved = true;
         this.configurations.push(JSON.parse(JSON.stringify(this.configurationTemplate)));
         this.configurationTemplate = this.initialConfig();
       }
-    },
-    remove: function remove(el) {
-      if (this.configurations.splice(el, 1)) {
-        return true;
-      }
-
-      return false;
     },
     primarySetting: function primarySetting(index, event) {
       if (event.target.checked) {
@@ -2239,11 +2208,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         showLoaderOnConfirm: true
       }).then(function (result) {
         if (result.value) {
-          if (_this.remove(index)) {
-            _this3.$swal('Deleted', 'You successfully deleted this row', 'success');
+          if (_this.configurations[index].id !== undefined) {
+            _this.remove(_this.configurations[index].id);
           } else {
-            _this3.$swal('Failed', 'Failed to deleted this row', 'error');
+            _this.configurations.splice(index, 1);
           }
+
+          _this3.$swal('Deleted', 'You successfully deleted this row', 'success');
         } else {
           _this3.$swal('Cancelled', 'Be careful next time', 'info');
         }
@@ -2257,24 +2228,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
      */
     initialConfig: function initialConfig() {
       return {
+        uuid: "",
         primary: 0,
-        name: {
-          value: "",
-          valid: true
-        },
-        hostname: {
-          value: "",
-          valid: true
-        },
-        port: {
-          value: "",
-          valid: true
-        },
-        speed: {
-          rotation: 140,
-          left: 90,
-          right: 90
-        }
+        name: "test",
+        hostname: "182.168.12.123",
+        port: 80,
+        rotation_speed: 140,
+        left_engine_speed: 90,
+        right_engine_speed: 90
       };
     },
 
@@ -2285,13 +2246,28 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
      * @returns {boolean}
      */
     isValid: function isValid(model) {
-      var name = model.name.value;
-      var hostname = model.hostname.value;
-      var port = model.port.value;
-      model.name.valid = name.length === 0 || name.length > 50 ? false : true;
-      model.hostname.valid = hostname.length === 0 || hostname.length > 15 || !/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(hostname) ? false : true;
-      model.port.valid = port.length === 0 || !/^\d+$/.test(port) ? false : true;
-      return model.name.valid && model.hostname.valid && model.port.valid ? true : false;
+      return document.querySelectorAll('.is-invalid').length === 0 ? true : false;
+    },
+    validationRules: function validationRules(model) {
+      return {
+        name: {
+          rule: model.name.length === 0 || model.name.length > 50 ? false : true,
+          message: "That field cannot be empty or longer then 50 letters."
+        },
+        hostname: {
+          rule: model.hostname.length === 0 || model.hostname.length > 15 || !/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(model.hostname) ? false : true,
+          message: "That field cannot be empty or longer then 12 digits."
+        },
+        port: {
+          rule: model.port.length === 0 || !/^\d+$/.test(model.port) ? false : true,
+          message: "That field cannot be empty and must be numeric."
+        }
+      };
+    },
+    serverValidation: function serverValidation(index, name) {
+      var _this$configurationsE;
+
+      return (_this$configurationsE = this.configurationsErrors[index + '.' + name]) !== null && _this$configurationsE !== void 0 ? _this$configurationsE : null;
     }
   })
 });
@@ -83898,7 +83874,7 @@ var render = function() {
                           staticClass:
                             "col-lg-4 d-flex flex-column justify-content-center"
                         },
-                        [_c("strong", [_vm._v(_vm._s(config.name.value))])]
+                        [_c("strong", [_vm._v(_vm._s(config.name))])]
                       ),
                       _vm._v(" "),
                       _c(
@@ -83910,9 +83886,9 @@ var render = function() {
                         [
                           _vm._v(
                             "\n                        " +
-                              _vm._s(config.hostname.value) +
+                              _vm._s(config.hostname) +
                               ":" +
-                              _vm._s(config.port.value) +
+                              _vm._s(config.port) +
                               "\n                    "
                           )
                         ]
@@ -84049,7 +84025,7 @@ var render = function() {
           on: { click: _vm.returnToConnections }
         },
         [
-          _vm._v("\n                Return to connections "),
+          _vm._v("\n            Return to connections "),
           _c("i", { staticClass: "fa fa-wifi" })
         ]
       )
@@ -84086,7 +84062,12 @@ var render = function() {
               _vm._v(" "),
               _c("h5", { staticClass: "card-title" }, [
                 _vm._v("Create new robot configuration")
-              ])
+              ]),
+              _vm._v(
+                "\n            " +
+                  _vm._s(this.configurationsErrors[0]) +
+                  "\n            "
+              )
             ],
             1
           ),
@@ -84101,7 +84082,7 @@ var render = function() {
               _c("form", [
                 _c("div", { staticClass: "form-group" }, [
                   _c("label", { attrs: { for: "name" } }, [
-                    _vm._v("Configuration label name")
+                    _vm._v("Configuration name")
                   ]),
                   _vm._v(" "),
                   _c("input", {
@@ -84109,14 +84090,21 @@ var render = function() {
                       {
                         name: "model",
                         rawName: "v-model",
-                        value: _vm.configurationTemplate.name.value,
-                        expression: "configurationTemplate.name.value"
+                        value: _vm.configurationTemplate.name,
+                        expression: "configurationTemplate.name"
+                      },
+                      {
+                        name: "validation",
+                        rawName: "v-validation",
+                        value: [
+                          _vm.validationRules(_vm.configurationTemplate).name,
+                          null
+                        ],
+                        expression:
+                          "[validationRules(configurationTemplate).name, null]"
                       }
                     ],
                     staticClass: "form-control",
-                    class: {
-                      "is-invalid": !_vm.configurationTemplate.name.valid
-                    },
                     attrs: {
                       type: "text",
                       id: "name",
@@ -84124,26 +84112,20 @@ var render = function() {
                       placeholder: "e.g. Arduino Robot V1",
                       required: ""
                     },
-                    domProps: { value: _vm.configurationTemplate.name.value },
+                    domProps: { value: _vm.configurationTemplate.name },
                     on: {
                       input: function($event) {
                         if ($event.target.composing) {
                           return
                         }
                         _vm.$set(
-                          _vm.configurationTemplate.name,
-                          "value",
+                          _vm.configurationTemplate,
+                          "name",
                           $event.target.value
                         )
                       }
                     }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "invalid-feedback" }, [
-                    _vm._v(
-                      "That field cannot be empty or longer then 50 letters."
-                    )
-                  ])
+                  })
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
@@ -84156,14 +84138,22 @@ var render = function() {
                       {
                         name: "model",
                         rawName: "v-model",
-                        value: _vm.configurationTemplate.hostname.value,
-                        expression: "configurationTemplate.hostname.value"
+                        value: _vm.configurationTemplate.hostname,
+                        expression: "configurationTemplate.hostname"
+                      },
+                      {
+                        name: "validation",
+                        rawName: "v-validation",
+                        value: [
+                          _vm.validationRules(_vm.configurationTemplate)
+                            .hostname,
+                          ""
+                        ],
+                        expression:
+                          "[validationRules(configurationTemplate).hostname, '']"
                       }
                     ],
                     staticClass: "form-control",
-                    class: {
-                      "is-invalid": !_vm.configurationTemplate.hostname.valid
-                    },
                     attrs: {
                       type: "text",
                       id: "hostname",
@@ -84171,17 +84161,15 @@ var render = function() {
                       placeholder: "192.168.x.x",
                       required: ""
                     },
-                    domProps: {
-                      value: _vm.configurationTemplate.hostname.value
-                    },
+                    domProps: { value: _vm.configurationTemplate.hostname },
                     on: {
                       input: function($event) {
                         if ($event.target.composing) {
                           return
                         }
                         _vm.$set(
-                          _vm.configurationTemplate.hostname,
-                          "value",
+                          _vm.configurationTemplate,
+                          "hostname",
                           $event.target.value
                         )
                       }
@@ -84190,12 +84178,6 @@ var render = function() {
                   _vm._v(" "),
                   _c("small", { staticClass: "form-text text-muted" }, [
                     _vm._v("IP of ESP8266 server module.")
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "invalid-feedback" }, [
-                    _vm._v(
-                      "That field cannot be empty or longer then 12 digits."
-                    )
                   ])
                 ]),
                 _vm._v(" "),
@@ -84207,38 +84189,41 @@ var render = function() {
                       {
                         name: "model",
                         rawName: "v-model",
-                        value: _vm.configurationTemplate.port.value,
-                        expression: "configurationTemplate.port.value"
+                        value: _vm.configurationTemplate.port,
+                        expression: "configurationTemplate.port"
+                      },
+                      {
+                        name: "validation",
+                        rawName: "v-validation",
+                        value: [
+                          _vm.validationRules(_vm.configurationTemplate).port,
+                          ""
+                        ],
+                        expression:
+                          "[validationRules(configurationTemplate).port, '']"
                       }
                     ],
                     staticClass: "form-control",
-                    class: {
-                      "is-invalid": !_vm.configurationTemplate.port.valid
-                    },
                     attrs: {
                       type: "numeric",
                       id: "port",
                       placeholder: "80",
                       required: ""
                     },
-                    domProps: { value: _vm.configurationTemplate.port.value },
+                    domProps: { value: _vm.configurationTemplate.port },
                     on: {
                       input: function($event) {
                         if ($event.target.composing) {
                           return
                         }
                         _vm.$set(
-                          _vm.configurationTemplate.port,
-                          "value",
+                          _vm.configurationTemplate,
+                          "port",
                           $event.target.value
                         )
                       }
                     }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "invalid-feedback" }, [
-                    _vm._v("That field cannot be empty and must be numeric.")
-                  ])
+                  })
                 ]),
                 _vm._v(" "),
                 _c("hr", { staticClass: "mt-5" }),
@@ -84247,7 +84232,7 @@ var render = function() {
                   _c("label", { attrs: { for: "rotation_speed" } }, [
                     _vm._v("Initial rotation speed: "),
                     _c("strong", [
-                      _vm._v(_vm._s(_vm.configurationTemplate.speed.rotation))
+                      _vm._v(_vm._s(_vm.configurationTemplate.rotation_speed))
                     ])
                   ]),
                   _vm._v(" "),
@@ -84256,8 +84241,8 @@ var render = function() {
                       {
                         name: "model",
                         rawName: "v-model",
-                        value: _vm.configurationTemplate.speed.rotation,
-                        expression: "configurationTemplate.speed.rotation"
+                        value: _vm.configurationTemplate.rotation_speed,
+                        expression: "configurationTemplate.rotation_speed"
                       }
                     ],
                     staticClass: "form-control-range",
@@ -84269,13 +84254,13 @@ var render = function() {
                       required: ""
                     },
                     domProps: {
-                      value: _vm.configurationTemplate.speed.rotation
+                      value: _vm.configurationTemplate.rotation_speed
                     },
                     on: {
                       __r: function($event) {
                         return _vm.$set(
-                          _vm.configurationTemplate.speed,
-                          "rotation",
+                          _vm.configurationTemplate,
+                          "rotation_speed",
                           $event.target.value
                         )
                       }
@@ -84287,7 +84272,9 @@ var render = function() {
                   _c("label", { attrs: { for: "left_engine_speed" } }, [
                     _vm._v("Initial left engine speed: "),
                     _c("strong", [
-                      _vm._v(_vm._s(_vm.configurationTemplate.speed.left))
+                      _vm._v(
+                        _vm._s(_vm.configurationTemplate.left_engine_speed)
+                      )
                     ])
                   ]),
                   _vm._v(" "),
@@ -84296,8 +84283,8 @@ var render = function() {
                       {
                         name: "model",
                         rawName: "v-model",
-                        value: _vm.configurationTemplate.speed.left,
-                        expression: "configurationTemplate.speed.left"
+                        value: _vm.configurationTemplate.left_engine_speed,
+                        expression: "configurationTemplate.left_engine_speed"
                       }
                     ],
                     staticClass: "form-control-range",
@@ -84308,12 +84295,14 @@ var render = function() {
                       id: "left_engine_speed",
                       required: ""
                     },
-                    domProps: { value: _vm.configurationTemplate.speed.left },
+                    domProps: {
+                      value: _vm.configurationTemplate.left_engine_speed
+                    },
                     on: {
                       __r: function($event) {
                         return _vm.$set(
-                          _vm.configurationTemplate.speed,
-                          "left",
+                          _vm.configurationTemplate,
+                          "left_engine_speed",
                           $event.target.value
                         )
                       }
@@ -84325,7 +84314,9 @@ var render = function() {
                   _c("label", { attrs: { for: "right_engine_speed" } }, [
                     _vm._v("Initial right engine speed: "),
                     _c("strong", [
-                      _vm._v(_vm._s(_vm.configurationTemplate.speed.right))
+                      _vm._v(
+                        _vm._s(_vm.configurationTemplate.right_engine_speed)
+                      )
                     ])
                   ]),
                   _vm._v(" "),
@@ -84334,8 +84325,8 @@ var render = function() {
                       {
                         name: "model",
                         rawName: "v-model",
-                        value: _vm.configurationTemplate.speed.right,
-                        expression: "configurationTemplate.speed.right"
+                        value: _vm.configurationTemplate.right_engine_speed,
+                        expression: "configurationTemplate.right_engine_speed"
                       }
                     ],
                     staticClass: "form-control-range",
@@ -84346,12 +84337,14 @@ var render = function() {
                       id: "right_engine_speed",
                       required: ""
                     },
-                    domProps: { value: _vm.configurationTemplate.speed.right },
+                    domProps: {
+                      value: _vm.configurationTemplate.right_engine_speed
+                    },
                     on: {
                       __r: function($event) {
                         return _vm.$set(
-                          _vm.configurationTemplate.speed,
-                          "right",
+                          _vm.configurationTemplate,
+                          "right_engine_speed",
                           $event.target.value
                         )
                       }
@@ -84367,7 +84360,7 @@ var render = function() {
                   on: { click: _vm.add }
                 },
                 [
-                  _vm._v("\n                    Add configuration "),
+                  _vm._v("\n                Add configuration "),
                   _c("i", {
                     staticClass: "fa fa-plus align-middle",
                     attrs: { "aria-hidden": "true" }
@@ -84493,7 +84486,7 @@ var render = function() {
                             _vm._v(
                               _vm._s(index + 1) +
                                 ". " +
-                                _vm._s(config.name.value) +
+                                _vm._s(config.name) +
                                 " "
                             ),
                             config.primary
@@ -84519,38 +84512,37 @@ var render = function() {
                                 {
                                   name: "model",
                                   rawName: "v-model",
-                                  value: config.name.value,
-                                  expression: "config.name.value"
+                                  value: config.name,
+                                  expression: "config.name"
+                                },
+                                {
+                                  name: "validation",
+                                  rawName: "v-validation",
+                                  value: [
+                                    _vm.validationRules(config).name,
+                                    _vm.serverValidation(index, "name")
+                                  ],
+                                  expression:
+                                    "[validationRules(config).name, serverValidation(index, 'name')]"
                                 }
                               ],
                               staticClass: "form-control",
-                              class: { "is-invalid": !config.name.valid },
                               attrs: {
                                 type: "text",
                                 "aria-describedby": "name",
                                 placeholder: "Configuration label name",
                                 required: ""
                               },
-                              domProps: { value: config.name.value },
+                              domProps: { value: config.name },
                               on: {
                                 input: function($event) {
                                   if ($event.target.composing) {
                                     return
                                   }
-                                  _vm.$set(
-                                    config.name,
-                                    "value",
-                                    $event.target.value
-                                  )
+                                  _vm.$set(config, "name", $event.target.value)
                                 }
                               }
-                            }),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "invalid-feedback" }, [
-                              _vm._v(
-                                "That field cannot be empty or longer then 50 letters."
-                              )
-                            ])
+                            })
                           ]),
                           _vm._v(" "),
                           _c("div", { staticClass: "form-group" }, [
@@ -84559,38 +84551,41 @@ var render = function() {
                                 {
                                   name: "model",
                                   rawName: "v-model",
-                                  value: config.hostname.value,
-                                  expression: "config.hostname.value"
+                                  value: config.hostname,
+                                  expression: "config.hostname"
+                                },
+                                {
+                                  name: "validation",
+                                  rawName: "v-validation",
+                                  value: [
+                                    _vm.validationRules(config).hostname,
+                                    _vm.serverValidation(index, "hostname")
+                                  ],
+                                  expression:
+                                    "[validationRules(config).hostname, serverValidation(index, 'hostname')]"
                                 }
                               ],
                               staticClass: "form-control",
-                              class: { "is-invalid": !config.hostname.valid },
                               attrs: {
                                 type: "text",
                                 "aria-describedby": "hostname",
                                 placeholder: "192.168.x.x",
                                 required: ""
                               },
-                              domProps: { value: config.hostname.value },
+                              domProps: { value: config.hostname },
                               on: {
                                 input: function($event) {
                                   if ($event.target.composing) {
                                     return
                                   }
                                   _vm.$set(
-                                    config.hostname,
-                                    "value",
+                                    config,
+                                    "hostname",
                                     $event.target.value
                                   )
                                 }
                               }
-                            }),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "invalid-feedback" }, [
-                              _vm._v(
-                                "That field cannot be empty or longer then 12 digits."
-                              )
-                            ])
+                            })
                           ]),
                           _vm._v(" "),
                           _c("div", { staticClass: "form-group" }, [
@@ -84599,44 +84594,43 @@ var render = function() {
                                 {
                                   name: "model",
                                   rawName: "v-model",
-                                  value: config.port.value,
-                                  expression: "config.port.value"
+                                  value: config.port,
+                                  expression: "config.port"
+                                },
+                                {
+                                  name: "validation",
+                                  rawName: "v-validation",
+                                  value: [
+                                    _vm.validationRules(config).port,
+                                    _vm.serverValidation(index, "port")
+                                  ],
+                                  expression:
+                                    "[validationRules(config).port, serverValidation(index, 'port')]"
                                 }
                               ],
                               staticClass: "form-control",
-                              class: { "is-invalid": !config.port.valid },
                               attrs: {
                                 type: "numeric",
                                 placeholder: "80",
                                 required: ""
                               },
-                              domProps: { value: config.port.value },
+                              domProps: { value: config.port },
                               on: {
                                 input: function($event) {
                                   if ($event.target.composing) {
                                     return
                                   }
-                                  _vm.$set(
-                                    config.port,
-                                    "value",
-                                    $event.target.value
-                                  )
+                                  _vm.$set(config, "port", $event.target.value)
                                 }
                               }
-                            }),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "invalid-feedback" }, [
-                              _vm._v(
-                                "That field cannot be empty and must be numeric."
-                              )
-                            ])
+                            })
                           ]),
                           _vm._v(" "),
                           _c("div", { staticClass: "form-group" }, [
                             _c("label", [
                               _vm._v("Initial rotation speed: "),
                               _c("strong", [
-                                _vm._v(_vm._s(config.speed.rotation))
+                                _vm._v(_vm._s(config.rotation_speed))
                               ])
                             ]),
                             _vm._v(" "),
@@ -84645,8 +84639,8 @@ var render = function() {
                                 {
                                   name: "model",
                                   rawName: "v-model",
-                                  value: config.speed.rotation,
-                                  expression: "config.speed.rotation"
+                                  value: config.rotation_speed,
+                                  expression: "config.rotation_speed"
                                 }
                               ],
                               staticClass: "form-control-range",
@@ -84656,12 +84650,12 @@ var render = function() {
                                 max: "200",
                                 required: ""
                               },
-                              domProps: { value: config.speed.rotation },
+                              domProps: { value: config.rotation_speed },
                               on: {
                                 __r: function($event) {
                                   return _vm.$set(
-                                    config.speed,
-                                    "rotation",
+                                    config,
+                                    "rotation_speed",
                                     $event.target.value
                                   )
                                 }
@@ -84672,7 +84666,9 @@ var render = function() {
                           _c("div", { staticClass: "form-group" }, [
                             _c("label", [
                               _vm._v("Initial left engine speed: "),
-                              _c("strong", [_vm._v(_vm._s(config.speed.left))])
+                              _c("strong", [
+                                _vm._v(_vm._s(config.left_engine_speed))
+                              ])
                             ]),
                             _vm._v(" "),
                             _c("input", {
@@ -84680,8 +84676,8 @@ var render = function() {
                                 {
                                   name: "model",
                                   rawName: "v-model",
-                                  value: config.speed.left,
-                                  expression: "config.speed.left"
+                                  value: config.left_engine_speed,
+                                  expression: "config.left_engine_speed"
                                 }
                               ],
                               staticClass: "form-control-range",
@@ -84691,12 +84687,12 @@ var render = function() {
                                 max: "255",
                                 required: ""
                               },
-                              domProps: { value: config.speed.left },
+                              domProps: { value: config.left_engine_speed },
                               on: {
                                 __r: function($event) {
                                   return _vm.$set(
-                                    config.speed,
-                                    "left",
+                                    config,
+                                    "left_engine_speed",
                                     $event.target.value
                                   )
                                 }
@@ -84707,7 +84703,9 @@ var render = function() {
                           _c("div", { staticClass: "form-group" }, [
                             _c("label", [
                               _vm._v("Initial right engine speed: "),
-                              _c("strong", [_vm._v(_vm._s(config.speed.right))])
+                              _c("strong", [
+                                _vm._v(_vm._s(config.right_engine_speed))
+                              ])
                             ]),
                             _vm._v(" "),
                             _c("input", {
@@ -84715,8 +84713,8 @@ var render = function() {
                                 {
                                   name: "model",
                                   rawName: "v-model",
-                                  value: config.speed.right,
-                                  expression: "config.speed.right"
+                                  value: config.right_engine_speed,
+                                  expression: "config.right_engine_speed"
                                 }
                               ],
                               staticClass: "form-control-range",
@@ -84726,12 +84724,12 @@ var render = function() {
                                 max: "255",
                                 required: ""
                               },
-                              domProps: { value: config.speed.right },
+                              domProps: { value: config.right_engine_speed },
                               on: {
                                 __r: function($event) {
                                   return _vm.$set(
-                                    config.speed,
-                                    "right",
+                                    config,
+                                    "right_engine_speed",
                                     $event.target.value
                                   )
                                 }
@@ -84814,7 +84812,7 @@ var render = function() {
                       on: { click: _vm.save }
                     },
                     [
-                      _vm._v("\n                        Save changes "),
+                      _vm._v("\n                    Save changes "),
                       _c("i", {
                         staticClass: "fa fa-save",
                         attrs: { "aria-hidden": "true" }
@@ -98388,6 +98386,91 @@ module.exports = function(module) {
 
 /***/ }),
 
+/***/ "./resources/js/_helpers/handleResponse.js":
+/*!*************************************************!*\
+  !*** ./resources/js/_helpers/handleResponse.js ***!
+  \*************************************************/
+/*! exports provided: handleResponse */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleResponse", function() { return handleResponse; });
+var handleResponse = function handleResponse(response) {
+  return response.text().then(function (text) {
+    var data = text && JSON.parse(text);
+
+    if (!response.ok) {
+      var errorData = data || response.statusText;
+      return Promise.reject(JSON.parse(JSON.stringify(errorData)));
+    }
+
+    return data;
+  });
+};
+
+/***/ }),
+
+/***/ "./resources/js/_services/connection.service.js":
+/*!******************************************************!*\
+  !*** ./resources/js/_services/connection.service.js ***!
+  \******************************************************/
+/*! exports provided: connectionService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "connectionService", function() { return connectionService; });
+/* harmony import */ var _helpers_handleResponse__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_helpers/handleResponse */ "./resources/js/_helpers/handleResponse.js");
+
+var connectionService = {
+  getList: getList,
+  updateOrCreate: updateOrCreate,
+  remove: remove
+};
+
+function getList() {
+  var requestOptions = {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-type': 'application/json'
+    }
+  };
+  return fetch("/api/configuration").then(_helpers_handleResponse__WEBPACK_IMPORTED_MODULE_0__["handleResponse"]).then(function (data) {
+    return data;
+  });
+}
+
+function updateOrCreate(configurations) {
+  var requestOptions = {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-type': 'application/json'
+    },
+    body: JSON.stringify(configurations)
+  }; // console.log(requestOptions);
+
+  return fetch("/api/configuration", requestOptions).then(_helpers_handleResponse__WEBPACK_IMPORTED_MODULE_0__["handleResponse"]).then(function (data) {
+    return data;
+  });
+}
+
+function remove(id) {
+  var requestOptions = {
+    method: 'DELETE',
+    headers: {
+      'Accept': 'application/json'
+    }
+  };
+  return fetch("/api/configuration/" + id, requestOptions).then(_helpers_handleResponse__WEBPACK_IMPORTED_MODULE_0__["handleResponse"]).then(function (data) {
+    return data;
+  });
+}
+
+/***/ }),
+
 /***/ "./resources/js/_store/connection.module.js":
 /*!**************************************************!*\
   !*** ./resources/js/_store/connection.module.js ***!
@@ -98398,9 +98481,12 @@ module.exports = function(module) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "connections", function() { return connections; });
+/* harmony import */ var _services_connection_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_services/connection.service */ "./resources/js/_services/connection.service.js");
+
 var state = {
   openManager: false,
-  configurationList: []
+  configurationList: [],
+  configurationsErrors: []
 };
 var actions = {
   manageConnections: function manageConnections(_ref, status) {
@@ -98408,23 +98494,53 @@ var actions = {
         commit = _ref.commit;
     commit('openManager', status);
   },
-  updateOrCreate: function updateOrCreate(_ref2, configurations) {
+  getList: function getList(_ref2) {
     var dispatch = _ref2.dispatch,
         commit = _ref2.commit;
-    commit('updateOrCreateRequest', configurations);
+    _services_connection_service__WEBPACK_IMPORTED_MODULE_0__["connectionService"].getList().then(function (data) {
+      commit('listRequestSuccess', data.data);
+    }, function (error) {// commit('updateOrCreateRequestFailed', error.errors);
+    });
   },
-  remove: function remove(_ref3, status) {
+  updateOrCreate: function updateOrCreate(_ref3, configurations) {
     var dispatch = _ref3.dispatch,
         commit = _ref3.commit;
+    _services_connection_service__WEBPACK_IMPORTED_MODULE_0__["connectionService"].updateOrCreate(configurations).then(function (data) {
+      commit('updateOrCreateRequest', data.data);
+    }, function (error) {
+      commit('updateOrCreateRequestFailed', error.errors);
+    });
+  },
+  remove: function remove(_ref4, id) {
+    var dispatch = _ref4.dispatch,
+        commit = _ref4.commit;
     commit('openManager', status);
+    _services_connection_service__WEBPACK_IMPORTED_MODULE_0__["connectionService"].remove(id).then(function (data) {
+      commit('removeRequestSuccess', data.data);
+    }, function (error) {// commit('updateOrCreateRequestFailed', error.errors);
+    });
+  },
+  resetErrors: function resetErrors(_ref5) {
+    var dispatch = _ref5.dispatch,
+        commit = _ref5.commit;
+    commit('updateOrCreateRequestFailed', []);
   }
 };
 var mutations = {
   openManager: function openManager(state, status) {
     state.openManager = status;
   },
+  listRequestSuccess: function listRequestSuccess(state, configurations) {
+    state.configurationList = configurations;
+  },
   updateOrCreateRequest: function updateOrCreateRequest(state, configurations) {
     state.configurationList = configurations;
+  },
+  updateOrCreateRequestFailed: function updateOrCreateRequestFailed(state, errors) {
+    state.configurationsErrors = errors;
+  },
+  removeRequestSuccess: function removeRequestSuccess(state, configuration) {
+    console.log(configuration);
   }
 };
 var connections = {
@@ -98474,6 +98590,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var bootstrap_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bootstrap-vue */ "./node_modules/bootstrap-vue/esm/index.js");
 /* harmony import */ var vue_sweetalert2__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-sweetalert2 */ "./node_modules/vue-sweetalert2/dist/index.js");
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./_store */ "./resources/js/_store/index.js");
+/* harmony import */ var _directives_ValidationDirective__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./directives/ValidationDirective */ "./resources/js/directives/ValidationDirective.js");
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -98482,6 +98599,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
+
 
 
 
@@ -98500,6 +98618,7 @@ Vue.component('fullscreen-managment', __webpack_require__(/*! ./components/menu/
 Vue.component('manage-configurations', __webpack_require__(/*! ./components/ManageConfigurations.vue */ "./resources/js/components/ManageConfigurations.vue")["default"]);
 Vue.component('connect', __webpack_require__(/*! ./components/Connect.vue */ "./resources/js/components/Connect.vue")["default"]);
 Vue.component('main-page', __webpack_require__(/*! ./pages/Main.vue */ "./resources/js/pages/Main.vue")["default"]);
+Vue.directive('validation', _directives_ValidationDirective__WEBPACK_IMPORTED_MODULE_3__["validationDirective"]);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -98762,6 +98881,48 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_FullscreenManagment_vue_vue_type_template_id_2cd68bde___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
+
+/***/ }),
+
+/***/ "./resources/js/directives/ValidationDirective.js":
+/*!********************************************************!*\
+  !*** ./resources/js/directives/ValidationDirective.js ***!
+  \********************************************************/
+/*! exports provided: validationDirective */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "validationDirective", function() { return validationDirective; });
+var validationDirective = {
+  inserted: function inserted(el, binding) {
+    main(el, binding);
+  },
+  update: function update(el, binding) {
+    main(el, binding);
+  }
+};
+
+function main(el, binding) {
+  var isCustomMessage = binding.value[1] !== "" && binding.value[1] !== null;
+  var init = binding.value[0];
+
+  if (!init.rule || isCustomMessage) {
+    if (!el.classList.contains("is-invalid")) {
+      el.classList.add("is-invalid");
+      var message = isCustomMessage ? binding.value[1][0] : init.message;
+      var errorMessage = document.createElement('div');
+      errorMessage.classList.add("invalid-feedback");
+      errorMessage.innerHTML = message;
+      el.parentNode.appendChild(errorMessage);
+    }
+  } else {
+    if (el.classList.contains("is-invalid")) {
+      el.classList.remove("is-invalid");
+      el.parentNode.querySelectorAll('.invalid-feedback')[0].remove();
+    }
+  }
+}
 
 /***/ }),
 
