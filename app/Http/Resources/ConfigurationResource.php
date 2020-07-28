@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+
+use App\Interfaces\Services\ConfigurationInterface;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ConfigurationResource extends JsonResource
@@ -15,7 +17,6 @@ class ConfigurationResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
             "uuid" => $this->uuid,
             "name" => $this->name,
             "hostname" => $this->hostname,
@@ -24,6 +25,7 @@ class ConfigurationResource extends JsonResource
             "left_engine_speed" => (int) $this->left_engine_speed,
             "right_engine_speed" => (int) $this->right_engine_speed,
             "primary" => (boolean) $this->primary,
+            "online" => $this->online ?? false
         ];
     }
 }

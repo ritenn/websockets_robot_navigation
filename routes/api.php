@@ -15,3 +15,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::resource('/configuration', 'API\ConfigurationController');
+//Route::get(/configuration/)
+
+Route::group(['prefix' => '/navigation', 'as' => 'nav'], function() {
+    Route::resource('/manual','API\ManualNavController');
+
+});

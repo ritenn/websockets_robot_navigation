@@ -10,17 +10,7 @@
         width: 58px;
         text-align: center;
         top: -5px;
-        left: -5px;
+        right: -5px;
     }
 }
 
-
-@include media-breakpoint-down(md) {
-
-    .connections-row {
-        &:nth-child(1).primary::after {
-            left: auto;
-            right: -5px;
-        }
-    }
-}

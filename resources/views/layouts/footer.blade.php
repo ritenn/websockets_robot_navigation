@@ -1,3 +1,4 @@
+@section('footer')
 <footer class="footer bg-dark mt-auto">
 <div class="container-fluid">
     <div class="row">
@@ -18,6 +19,7 @@
     </div>
 </div>
 </footer>
+@show
 <!-- JS Scripts -->
 @section('bottom_js_scripts')
 @show

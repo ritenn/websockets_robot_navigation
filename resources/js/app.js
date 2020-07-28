@@ -11,25 +11,52 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import VueSweetalert2 from 'vue-sweetalert2';
 import { store } from './_store';
 import { validationDirective } from './directives/ValidationDirective';
+import Toasted from 'vue-toasted';
+
 /**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
+ * Global usage
  */
-
-Vue.use(BootstrapVue)
-Vue.use(IconsPlugin)
+Vue.use(Toasted, {
+    fullWidth: true,
+    type: 'success',
+    theme: 'bubble',
+    duration: 2500,
+    iconPack : 'fontawesome',
+    position: "bottom-center",
+    icon : 'check-circle',
+    action : {
+        text: "x",
+        onClick : (e, toastObject) => {
+            toastObject.goAway(0);
+        }
+    },
+});
+Vue.use(BootstrapVue);
+Vue.use(IconsPlugin);
 Vue.use(VueSweetalert2);
-
+/**
+ * Components
+ */
+Vue.component('loader', require('./components/Loader').default);
 Vue.component('fullscreen-managment', require('./components/menu/FullscreenManagment').default);
 Vue.component('manage-configurations', require('./components/ManageConfigurations.vue').default);
 Vue.component('connect', require('./components/Connect.vue').default);
+Vue.component('console', require('./components/Console.vue').default);
 
+/**
+ * Pages
+ */
 Vue.component('main-page', require('./pages/Main.vue').default);
+Vue.component('manual-navigation-page', require('./pages/ManualNavigation.vue').default);
 
+/**
+ * Directives
+ */
 Vue.directive('validation', validationDirective)
+
+
+Vue.prototype.$loader = false;
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

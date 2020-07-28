@@ -17246,13 +17246,368 @@ body {
   width: 58px;
   text-align: center;
   top: -5px;
-  left: -5px;
+  right: -5px;
 }
 
-@media (max-width: 991.98px) {
-  .connections-row:nth-child(1).primary::after {
-    left: auto;
-    right: -5px;
+#main-console {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#main-console .btn-terminal {
+  float: left;
+  background: black;
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 3px 14px;
+  border: 2px solid #fff;
+  margin: 5px;
+}
+
+#main-console .console {
+  background: #191919;
+  height: 100%;
+}
+
+#main-console .console .blink-caret {
+  background: #10101000;
+  border: 3px solid orange;
+  width: 15px;
+  height: 21px;
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+}
+
+#main-console .console #calc_pos {
+  position: absolute;
+  bottom: 0;
+  width: auto;
+}
+
+#main-console .console .caret-active {
+  animation: blink-animation 1s steps(5, start) infinite;
+  -webkit-animation: blink-animation 1s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+
+#main-console .console-user {
+  width: 277px;
+}
+
+#main-console .console-input {
+  caret-color: transparent;
+  position: relative;
+  width: 100%;
+  height: 50px;
+  background: #191919;
+  color: orange;
+  border: none;
+  resize: none;
+  outline: none;
+  font-weight: 700;
+}
+
+.full_width {
+  top: 0;
+  z-index: 99;
+}
+
+.rotation-wrapper {
+  cursor: pointer;
+  background: #3a3a3af2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 100%;
+  width: 450px;
+  height: 78%;
+  margin: auto;
+  border: 9px solid darkorange;
+  box-shadow: inset 1px 1px 20px 4px #f16806;
+}
+
+.rotation-wrapper-current {
+  background: transparent;
+  box-shadow: none;
+  border: 9px solid transparent;
+  box-shadow: none;
+  z-index: 9;
+}
+
+.rotation-wrapper-current:after {
+  content: "";
+  position: absolute;
+  background: #4290dc;
+  width: 38px;
+  height: 38px;
+  margin: auto;
+  left: 0;
+  right: 0;
+  top: -27px;
+  border-radius: 100%;
+  z-index: 99;
+}
+
+.rotation-wrapper-current:before {
+  content: "";
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  margin: auto;
+  left: 0;
+  right: 0;
+  top: -50px;
+  z-index: 99;
+  border-left: 17px solid transparent;
+  border-right: 17px solid transparent;
+  border-top: 41px solid #4290dc;
+}
+
+.rotation-wrapper .direction {
+  position: absolute;
+  margin: auto;
+  font-size: 24px;
+  color: #fff;
+  font-weight: 900;
+  z-index: 59;
+}
+
+.rotation-wrapper .direction-north {
+  top: -24px;
+  left: 0;
+  right: 0;
+  width: 18px;
+}
+
+.rotation-wrapper .direction-south {
+  bottom: -25px;
+  right: 0;
+  left: 0;
+  width: 42px;
+}
+
+.rotation-wrapper .direction-west {
+  left: -28px;
+  top: 0;
+  bottom: 0;
+  height: 35px;
+}
+
+.rotation-wrapper .direction-east {
+  right: -18px;
+  top: 0;
+  bottom: 0;
+  height: 35px;
+}
+
+.direction-display {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  z-index: 99;
+  height: 20px;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 800;
+  height: 48px;
+}
+
+.controls {
+  position: relative;
+  width: 50%;
+  max-width: 130px;
+  margin: auto;
+}
+
+.controls-center {
+  position: relative;
+}
+
+.controls-center-wrapper {
+  top: -2px;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.controls-center-wrapper-left {
+  right: -63%;
+}
+
+.controls-center-wrapper-right {
+  right: 63%;
+}
+
+.controls-btn {
+  width: 100%;
+  background: transparent;
+  outline: none;
+  border: none;
+}
+
+.controls-btn:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.controls-btn .triangle {
+  position: relative;
+  display: block;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  color: white;
+  background: orange;
+  text-decoration: none;
+  background-clip: content-box;
+  overflow: hidden;
+  padding-bottom: 48%;
+  z-index: 9;
+}
+
+.controls-btn .triangle:after {
+  content: "";
+  position: absolute;
+  background-color: inherit;
+  padding-bottom: 100%;
+  transform-origin: 0 0;
+  top: 0;
+  left: 50%;
+  width: 100%;
+  transform: rotate(49deg) skewX(8deg);
+}
+
+.controls-btn .triangle:active::after {
+  background: #ff8800;
+}
+
+.controls-btn .triangle-down {
+  transform: rotate(180deg);
+}
+
+.controls-btn .triangle-left {
+  transform: rotate(90deg);
+}
+
+.controls-btn .triangle-right {
+  transform: rotate(-90deg);
+}
+
+.controls-btn .triangle-center {
+  padding: 35%;
+  z-index: 1;
+  margin: 11px auto;
+}
+
+.controls-btn .triangle-center:after {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 70%;
+  transform: rotate(0deg) skewX(0deg);
+  margin: auto;
+}
+
+.controls .active .triangle:after {
+  background: #2ebd52;
+}
+
+.speed-controls {
+  cursor: pointer;
+}
+
+.speed-controls-indicator {
+  width: 82px;
+  background: black;
+  padding: 8px;
+  font-size: 20px;
+  font-weight: bolder;
+  border-radius: 5px;
+  border: 1px solid orange;
+}
+
+.speed-controls .active {
+  background: #0a3e79;
+}
+
+.speed-controls-range-speed {
+  position: relative;
+  overflow: hidden;
+  width: 90%;
+  height: 100%;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background: black;
+  border: 1px solid orange;
+}
+
+.speed-controls-range-speed:focus {
+  outline: none;
+}
+
+.speed-controls-range-speed::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: #4290dc;
+  height: 48px;
+  width: 10px;
+  box-shadow: -944px 0 0 944px #0a3e79;
+}
+
+.speed-controls-range-speed:after {
+  content: "engine speed";
+  color: white;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  height: 22px;
+  width: 100%;
+  color: #8c8c8c;
+  font-weight: 900;
+  font-size: 16px;
+  text-align: center;
+}
+
+.speed-controls .rotation:after {
+  content: "rotation speed";
+}
+
+.app-center {
+  margin-top: auto;
+  margin-bottom: auto !important;
+}
+
+@media (min-width: 992px) {
+  .p-lg-6 {
+    padding: 4rem !important;
   }
 }
 

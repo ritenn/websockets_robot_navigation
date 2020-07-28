@@ -30,9 +30,11 @@ class ConfigurationController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(ConfigurationRequest $request)
     {
-        $resource = $this->configurationService->list();
+        $status = $request->has('updateStatus') ? $request->updateStatus : false;
+
+        $resource = $this->configurationService->list('primary', 'DESC', $status);
 
         return $this->jsonResponse('Configuration list.', ConfigurationResource::collection($resource), 200);
     }

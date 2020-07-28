@@ -12,8 +12,9 @@
                         <i class="opened fa fa-minus"></i>
                         <i class="closed fa fa-plus"></i>
                     </b-button>
-                    <h5 class="card-title">Create new robot configuration</h5>
-                {{this.configurationsErrors[0]}}
+                    <h5 class="card-title text-white">
+                        <i class="fa fa-cog pr-2" aria-hidden="true"></i> Create new robot configuration
+                    </h5>
                 </div>
                 <b-collapse visible id="configuration" class="card-body bg-dark-light">
                 <form>
@@ -57,7 +58,9 @@
                         <i class="opened fa fa-minus"></i>
                         <i class="closed fa fa-plus"></i>
                     </b-button>
-                    <h5 class="card-title">Available configuration list</h5>
+                    <h5 class="card-title text-white">
+                        <i class="fa fa-database pr-2" aria-hidden="true"></i> Available configuration list
+                    </h5>
                 </div>
                 <b-collapse visible id="list" class="card-body bg-dark-light">
                     <div class="text-center pt-5 pb-5" v-if="configurations.length === 0">
@@ -102,7 +105,7 @@
                             </div>
                             <div class="form-group mt-4">
                                 <input @click="primarySetting(index, $event)" :id="'primary-' + index" type="checkbox" value="1" v-model="config.primary" class="form-control-checkbox" />
-                                <label>Primary configuration</label>
+                                <label :for="'primary-' + index">Primary configuration</label>
                             </div>
                         </b-collapse>
                     </div>
@@ -154,19 +157,13 @@
             },
             save()
             {
-                var elems = document.querySelectorAll(".is-invalid");
-
-                [].forEach.call(elems, function(el) {
-                    el.classList.remove("is-invalid");
-                });
-
-                if (this.isValid())
-                {
+                // if (this.isValid())
+                // {
                     this.isUnsaved = false;
                     const {configurations} = this;
 
                     this.updateOrCreate(configurations);
-                }
+                // }
             },
             add()
             {
@@ -226,12 +223,7 @@
                 }).then((result) => {
                     if(result.value) {
 
-                        if (_this.configurations[index].id !== undefined)
-                        {
-                            _this.remove(_this.configurations[index].id);
-                        } else {
-                            _this.configurations.splice(index, 1)
-                        }
+                        _this.remove({index: index, uuid: _this.configurations[index].uuid});
 
                         this.$swal('Deleted', 'You successfully deleted this row', 'success');
 

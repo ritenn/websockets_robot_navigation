@@ -19,6 +19,13 @@ interface BaseInterface {
     public function setModel();
 
     /**
+     * Helper function to check if data contains only fields that exists in db
+     *
+     * @param array $data
+     */
+    public function fillable(array $data) : array;
+
+    /**
      * @param array $multiDimensionData
      * @param array $findByAttributes
      */

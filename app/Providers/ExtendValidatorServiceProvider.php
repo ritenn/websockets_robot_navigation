@@ -51,7 +51,7 @@ class ExtendValidatorServiceProvider extends ServiceProvider
             }
 
            return true;
-        }, ":attribute has to be unique within request input data array");
+        }, "This field has to be unique.");
 
         /**
          * Allows to store/update by one method
@@ -83,7 +83,7 @@ class ExtendValidatorServiceProvider extends ServiceProvider
             }
 
             return true;
-        }, ":attribute is already in use and given check attribute is also not found.");
+        }, "This field value already exists.");
 
 
     }

@@ -6,7 +6,7 @@ export const connectionService = {
     remove,
 };
 
-function getList() {
+function getList(updateStatus) {
 
     const requestOptions = {
         method: 'GET',
@@ -16,7 +16,9 @@ function getList() {
         }
     };
 
-    return fetch(`/api/configuration`)
+    let status = updateStatus ? 1 : 0;
+
+    return fetch(`/api/configuration?updateStatus=` + status)
         .then(handleResponse)
         .then(data => {
 
@@ -43,7 +45,7 @@ function updateOrCreate(configurations) {
         });
 }
 
-function remove(id) {
+function remove(uuid) {
 
     const requestOptions = {
         method: 'DELETE',
@@ -52,7 +54,7 @@ function remove(id) {
         }
     };
 
-    return fetch(`/api/configuration/` + id, requestOptions)
+    return fetch(`/api/configuration/` + uuid, requestOptions)
         .then(handleResponse)
         .then(data => {
 

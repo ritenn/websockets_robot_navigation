@@ -8,6 +8,7 @@
 <div id="app" class="{{$additionalClass}}">
     <menu class="main-menu">@include('layouts.menu')@show</menu>
     @include('layouts.content')@show
+    <loader/>
 </div>
 @include('layouts.footer')@show
 </body>

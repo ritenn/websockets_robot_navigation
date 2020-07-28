@@ -14,8 +14,7 @@ class CreateConfigurationsTable extends Migration
     public function up()
     {
         Schema::create('configurations', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->index();
+            $table->uuid('uuid')->primary();
             $table->char("name", 255)->index();
             $table->char("hostname");
             $table->unsignedInteger("port");

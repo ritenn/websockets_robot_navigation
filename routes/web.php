@@ -14,3 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', 'MainController@index');
+
+Route::group(['prefix' => '/navigation', 'as' => 'nav.'], function() {
+    Route::get('/manual/{configuration}',['as' => 'manual', 'uses' => 'ManualNavController@show']);
+});

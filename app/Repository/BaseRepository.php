@@ -40,6 +40,20 @@ abstract class BaseRepository implements  BaseInterface {
     abstract public function model();
 
     /**
+     * Helper function to check if data contains only fields that exists in db
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    public function fillable(array $data) : array
+    {
+        $columns = array_flip(\Schema::getColumnListing($this->model->getTable()));
+
+        return array_intersect_key($data, $columns);
+    }
+
+    /**
      * Set model
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
@@ -81,6 +95,8 @@ abstract class BaseRepository implements  BaseInterface {
      */
     public function updateOrCreate(array $checkForKeysValues, array $data) : Model
     {
+        $data = $this->fillable($data);
+
         return $this->model->updateOrCreate($checkForKeysValues, $data);
     }
 

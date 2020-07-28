@@ -28,6 +28,13 @@ class ConfigurationRequest extends FormRequest
         return $this->$action();
     }
 
+    public function index()
+    {
+        return [
+            'updateStatus' => "bool"
+        ];
+    }
+
     public function store()
     {
         return [

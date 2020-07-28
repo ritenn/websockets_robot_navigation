@@ -59,7 +59,7 @@ class ConfigurationTest extends TestCase
     {
         $configuration = factory(Configuration::class)->create();
 
-        $response = $this->delete('/api/configuration/' . $configuration->id, $this->headers);
+        $response = $this->delete('/api/configuration/' . $configuration->uuid, $this->headers);
 //        $response->dump();
         $response->assertStatus(200)
             ->assertJson(['message' => 'Configuration removed sucessfully.']);

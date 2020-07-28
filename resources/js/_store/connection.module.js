@@ -1,4 +1,5 @@
 import { connectionService } from '../_services/connection.service';
+import {handleResponse} from "../_helpers/handleResponse";
 
 const state = {
     openManager: false,
@@ -10,46 +11,53 @@ const actions = {
     manageConnections({ dispatch, commit }, status) {
         commit('openManager', status);
     },
-    getList({ dispatch, commit }) {
-        connectionService.getList().then(
+    getList({ dispatch, commit }, updateStatus) {
 
+        commit('loader/switchState', true, {root: true});
+        connectionService.getList(updateStatus).then(
             data => {
                 commit('listRequestSuccess', data.data);
             },
             error => {
-                // commit('updateOrCreateRequestFailed', error.errors);
+                Vue.toasted.show(error.message, {type: 'error', icon : 'warning'});
             }
-        );
+        ).then(() => commit('loader/switchState', false, {root: true}));
     },
     updateOrCreate({ dispatch, commit }, configurations) {
 
         connectionService.updateOrCreate(configurations).then(
             data => {
+                Vue.toasted.show(data.message);
                 commit('updateOrCreateRequest', data.data);
             },
             error => {
+                Vue.toasted.show(error.message, {type: 'error', icon : 'warning'});
                 commit('updateOrCreateRequestFailed', error.errors);
 
             }
         );
     },
-    remove({ dispatch, commit }, id) {
-        commit('openManager', status);
+    remove({ dispatch, commit }, {index, uuid}) {
 
-        connectionService.remove(id).then(
-            data => {
-                commit('removeRequestSuccess', data.data);
-            },
-            error => {
-                // commit('updateOrCreateRequestFailed', error.errors);
+        if (uuid === "")
+        {
+            commit('removeRequestSuccess', index);
 
-            }
-        );
-    },
-    resetErrors({ dispatch, commit }) {
-        commit('updateOrCreateRequestFailed', []);
+        } else {
+
+            connectionService.remove(uuid).then(
+                data => {
+                    Vue.toasted.show(data.message);
+                    commit('removeRequestSuccess', index);
+                },
+                error => {
+                    Vue.toasted.show(error.message, {type: 'error', icon : 'warning'});
+                }
+            );
+        }
+
+
     }
-
 };
 
 const mutations = {
@@ -64,14 +72,15 @@ const mutations = {
     updateOrCreateRequest(state, configurations)
     {
         state.configurationList = configurations;
+        state.configurationsErrors = [];
     },
     updateOrCreateRequestFailed(state, errors)
     {
         state.configurationsErrors = errors;
     },
-    removeRequestSuccess(state, configuration)
+    removeRequestSuccess(state, index)
     {
-        console.log(configuration);
+        state.configurationList.splice(index, 1);
     }
 
 

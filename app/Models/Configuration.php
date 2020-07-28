@@ -10,7 +10,16 @@ class Configuration extends Model
 {
     use UuidTrait;
 
-    protected $guarded = ['id'];
+    protected $guarded = ['uuid'];
+    protected $primaryKey = 'uuid';
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
+    public function getFillable()
+    {
+        return $this->fillable;
+    }
 
     protected static function boot()
     {
