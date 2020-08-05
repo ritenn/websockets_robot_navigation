@@ -24,7 +24,7 @@
         overflow: hidden;
         margin: auto;
         background: #000000;
-        z-index: 99;
+        z-index: 120;
         animation: fadeIn 5s infinite;
     }
     .loader-gif {

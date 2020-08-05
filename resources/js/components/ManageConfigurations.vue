@@ -157,13 +157,10 @@
             },
             save()
             {
-                // if (this.isValid())
-                // {
-                    this.isUnsaved = false;
-                    const {configurations} = this;
+                this.isUnsaved = false;
+                const {configurations} = this;
 
-                    this.updateOrCreate(configurations);
-                // }
+                this.updateOrCreate(configurations);
             },
             add()
             {
@@ -242,9 +239,9 @@
                 return {
                     uuid: "",
                     primary: 0,
-                    name: "test",
-                    hostname: "182.168.12.123",
-                    port: 80,
+                    name: "",
+                    hostname: "",
+                    port: "",
                     rotation_speed: 140,
                     left_engine_speed: 90,
                     right_engine_speed: 90

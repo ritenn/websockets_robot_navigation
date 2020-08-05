@@ -61,12 +61,10 @@
     export default {
         computed: {
             ...mapState('connections', ['openManager', 'configurationList']),
-            ...mapState('websockets', ['ws', 'message']),
         },
         created() {
             this.getList(true);
             this.refreshList();
-
         },
         data() {
             return {
@@ -74,17 +72,8 @@
                 refreshTimerSeconds: this.refreshInitial,
             }
         },
-        watch: {
-            ws: function(val) {
-              // console.log(val);
-            },
-            message: function(val) {
-                // console.log(val);
-            }
-        },
         methods: {
             ...mapActions('connections', ['manageConnections', 'getList']),
-            ...mapActions('websockets', ['setConnection', 'wsConnect']),
             refreshList()
             {
                 setInterval(() => {
@@ -106,10 +95,10 @@
             {
                 const selectedConnection = this.configurationList.find(x => x.uuid == uuid);
 
-                this.setConnection(selectedConnection);
-                this.wsConnect();
-                // console.log();
-                // window.location.href = '/navigation/manual/' + uuid
+                if (selectedConnection.online)
+                {
+                    window.location.href = '/navigation/manual/' + uuid
+                }
             }
 
         }

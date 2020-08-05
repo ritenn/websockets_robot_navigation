@@ -1,3 +1,14 @@
+.disconnected {
+    display: flex;
+    position: fixed;
+    background: grey;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+}
+
 .rotation-wrapper {
     cursor: pointer;
     background: #3a3a3af2;
@@ -279,4 +290,9 @@
     .p-lg-6 {
         padding: 4rem !important;
     }
+}
+@media (max-width: 767.98px) and (orientation: portrait) {
+        .rotation-wrapper {
+            height: 110%;
+        }
 }

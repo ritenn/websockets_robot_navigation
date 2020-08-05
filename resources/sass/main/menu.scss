@@ -5,23 +5,62 @@
     z-index: 999;
     width: 100%;
     padding: 0;
+    margin: auto;
 
-    .resize-wrapper {
-        position: absolute;
-        right: -2px;
-        top: -20px;
+    .menu-open {
+        background: black;
+        position: fixed;
+        bottom: 0;
+        top: 0;
+        margin: auto;
+        z-index: 999;
+    }
 
-        .resize {
-            background: none;
-            border: none;
-            color: #57c172;
-            font-size: 27px;
+    .menu {
+        &-list {
+            padding: 0;
 
-            &:active, &:focus, &:hover, &:visited {
-                border: none;
-                outline: none;
+            &-item {
+                background: orange;
+                text-align: center;
+                list-style: none;
+                font-size: 20px;
+
+                &-action {
+                    color: #fff;
+                    padding: 20px;
+
+                    &:hover {
+                        text-decoration: none;
+                    }
+                }
             }
         }
+    }
+
+    .main-menu-wrapper, .resize-wrapper   {
+        position: absolute;
+
+            button {
+                background: none;
+                border: none;
+                color: #57c172;
+                font-size: 27px;
+
+                &:active, &:focus, &:hover, &:visited {
+                    border: none;
+                    outline: none;
+                }
+            }
+
+    }
+
+    .main-menu-wrapper {
+        left: 2px;
+    }
+
+    .resize-wrapper {
+        right: -2px;
     }
 
 }

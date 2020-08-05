@@ -1,5 +1,4 @@
 import { connectionService } from '../_services/connection.service';
-import {handleResponse} from "../_helpers/handleResponse";
 
 const state = {
     openManager: false,

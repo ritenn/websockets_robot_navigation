@@ -38,6 +38,7 @@ Vue.use(VueSweetalert2);
  * Components
  */
 Vue.component('loader', require('./components/Loader').default);
+Vue.component('main-menu', require('./components/menu/Menu').default);
 Vue.component('fullscreen-managment', require('./components/menu/FullscreenManagment').default);
 Vue.component('manage-configurations', require('./components/ManageConfigurations.vue').default);
 Vue.component('connect', require('./components/Connect.vue').default);

@@ -1,14 +1,22 @@
 <template>
     <div class="row justify-content-center">
-        <div class="col-sm-6 compass-col">
+        <div v-show="!connected" class="disconnected flex-column justify-content-center">
+            <div class="text-center text-white">
+                <h1>
+                    <strong>Disconnected</strong> <i class="fa fa-plug" aria-hidden="true"></i>
+                </h1>
+                <small>Trying to reconntect...</small>
+            </div>
+        </div>
+        <div class="col-sm-6 compass-col mb-5">
             <div @touchmove="startRotate" @touchstart="startRotate" @touchend="stopRotate" @mousedown="startRotate" @mouseup="stopRotate" class="rotation-wrapper rotation-wrapper-current">
             </div>
 
             <div class="rotation-wrapper">
-                <div @click="angle=0" class="direction direction-north">0</div>
-                <div @click="angle=90" class="direction direction-east">90</div>
-                <div @click="angle=-90" class="direction direction-west">-90</div>
-                <div @click="angle=180" class="direction direction-south">180</div>
+                <div @click="angle=0; sendRotateCommand();" class="direction direction-north">0</div>
+                <div @click="angle=90; sendRotateCommand();" class="direction direction-east">90</div>
+                <div @click="angle=-90; sendRotateCommand();" class="direction direction-west">-90</div>
+                <div @click="angle=180; sendRotateCommand();" class="direction direction-south">180</div>
             </div>
             <div class="p-lg-6 p-sm-5 p-md-5 overflow-hidden">
             <div class="controls">
@@ -17,7 +25,7 @@
                 </button>
                 <div class="controls-center">
                     <div class="controls-center-wrapper controls-center-wrapper-right">
-                        <button @click="sendMove('R')" class="controls-btn" :class="{active: direction == 'R'}">
+                        <button @click="sendMove('L')" class="controls-btn" :class="{active: direction == 'L'}">
                             <span class="triangle triangle-right"></span>
                         </button>
                     </div>
@@ -28,7 +36,7 @@
                         </div>
                     </button>
                     <div class="controls-center-wrapper controls-center-wrapper-left">
-                        <button @click="sendMove('L')" class="controls-btn" :class="{active: direction == 'L'}">
+                        <button @click="sendMove('R')" class="controls-btn" :class="{active: direction == 'R'}">
                             <span class="triangle triangle-left"></span>
                         </button>
                     </div>
@@ -39,8 +47,7 @@
             </div>
             </div>
         </div>
-
-        <div class="col-sm-6">
+        <div class="col-sm-6 mt-5">
             <div class="speed-controls d-inline-flex flex-row justify-content-between w-100">
                 <div @click="speed.leftActive = !speed.leftActive"
                      class="text-center speed-controls-indicator" :class="{active: speed.leftActive}"
@@ -62,13 +69,13 @@
                     {{speed.rotation}}
                 </div>
                 <div class="d-flex w-100 justify-content-end">
-                    <input class="speed-controls-range-speed rotation" type="range" min="60" max="255" v-model="speed.rotation">
+                    <input @click="sendRotationSpeed" class="speed-controls-range-speed rotation" type="range" min="60" max="255" v-model="speed.rotation">
                 </div>
 
             </div>
         </div>
 
-        <console :config="configurationData" />
+        <console ref="console" :config="configurationData" />
     </div>
 </template>
 
@@ -78,23 +85,16 @@
     export default {
         props: ['configurationData'],
         computed: {
-            ...mapState('connections', ['openManager'])
+            ...mapState('connections', ['openManager']),
+            ...mapState('websockets', ['connecting', 'connected', 'message']),
         },
         mounted() {
             window.addEventListener("resize", this.handleResize);
+
             this.compassDiv = document.getElementsByClassName("rotation-wrapper")[0];
             this.currentAngleDiv = document.getElementsByClassName("rotation-wrapper")[1];
+            this.handleResize();
 
-            var interval = 0;
-            var resizeInterval = setInterval( () => {
-                if (interval > 3)
-                {
-                    clearInterval(resizeInterval);
-                } else {
-                    this.handleResize()
-                }
-                interval++;
-            }, 200);
 
         },
         data() {
@@ -131,7 +131,6 @@
             }
         },
         methods: {
-
             handleResize()
             {
                 let compasHeight = this.compassDiv.offsetHeight;
@@ -172,14 +171,36 @@
                 window.removeEventListener('mousemove', this.rotate);
                 window.removeEventListener('touchmove', this.rotate);
                 window.removeEventListener('touchstart', this.rotate);
+
+                this.sendRotateCommand();
             },
             sendMove(direction)
             {
                 this.direction = direction;
+                this.$refs.console.sendCommand(direction);
             },
             sendSpeed()
             {
-                // console.log(this.speedIndicator);
+                let speedCommand = this.speed.leftActive && this.speed.rightActive ? "S=" + this.speedIndicator : (
+                    this.speed.leftActive ? "SA=" + this.speed.left : "SB=" + this.speed.right
+                );
+
+                this.$refs.console.sendCommand(speedCommand);
+            },
+            sendRotationSpeed()
+            {
+                this.$refs.console.sendCommand("SR=" + this.speed.rotation);
+            },
+            sendRotateCommand()
+            {
+                /**
+                 * That will be changed when compass module will be tested and mounted together with optic sensors
+                 */
+                const sensorHalfAngleTicks = 40;
+                const degreesPerSensorTick = 180 / sensorHalfAngleTicks;
+
+                let angleToSensorTicks = Math.round(this.angle / degreesPerSensorTick);
+                this.$refs.console.sendCommand("Z=" + angleToSensorTicks);
             }
         }
     }

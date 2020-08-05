@@ -17164,27 +17164,69 @@ input[type=color].form-control:disabled {
   z-index: 999;
   width: 100%;
   padding: 0;
+  margin: auto;
 }
 
+.main-menu .menu-open {
+  background: black;
+  position: fixed;
+  bottom: 0;
+  top: 0;
+  margin: auto;
+  z-index: 999;
+}
+
+.main-menu .menu-list {
+  padding: 0;
+}
+
+.main-menu .menu-list-item {
+  background: orange;
+  text-align: center;
+  list-style: none;
+  font-size: 20px;
+}
+
+.main-menu .menu-list-item-action {
+  color: #fff;
+  padding: 20px;
+}
+
+.main-menu .menu-list-item-action:hover {
+  text-decoration: none;
+}
+
+.main-menu .main-menu-wrapper,
 .main-menu .resize-wrapper {
   position: absolute;
-  right: -2px;
-  top: -20px;
 }
 
-.main-menu .resize-wrapper .resize {
+.main-menu .main-menu-wrapper button,
+.main-menu .resize-wrapper button {
   background: none;
   border: none;
   color: #57c172;
   font-size: 27px;
 }
 
-.main-menu .resize-wrapper .resize:active,
-.main-menu .resize-wrapper .resize:focus,
-.main-menu .resize-wrapper .resize:hover,
-.main-menu .resize-wrapper .resize:visited {
+.main-menu .main-menu-wrapper button:active,
+.main-menu .main-menu-wrapper button:focus,
+.main-menu .main-menu-wrapper button:hover,
+.main-menu .main-menu-wrapper button:visited,
+.main-menu .resize-wrapper button:active,
+.main-menu .resize-wrapper button:focus,
+.main-menu .resize-wrapper button:hover,
+.main-menu .resize-wrapper button:visited {
   border: none;
   outline: none;
+}
+
+.main-menu .main-menu-wrapper {
+  left: 2px;
+}
+
+.main-menu .resize-wrapper {
+  right: -2px;
 }
 
 html,
@@ -17267,6 +17309,10 @@ body {
   margin: 5px;
 }
 
+#main-console .terminal-open {
+  margin: 5px 70px;
+}
+
 #main-console .console {
   background: #191919;
   height: 100%;
@@ -17326,6 +17372,17 @@ body {
 .full_width {
   top: 0;
   z-index: 99;
+}
+
+.disconnected {
+  display: flex;
+  position: fixed;
+  background: grey;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
 }
 
 .rotation-wrapper {
@@ -17608,6 +17665,12 @@ body {
 @media (min-width: 992px) {
   .p-lg-6 {
     padding: 4rem !important;
+  }
+}
+
+@media (max-width: 767.98px) and (orientation: portrait) {
+  .rotation-wrapper {
+    height: 110%;
   }
 }
 
