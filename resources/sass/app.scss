@@ -1,0 +1,22 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+@import 'node_modules/bootstrap-vue/src/index.scss';
+
+//Icons
+@import "~font-awesome";
+
+//App SCSS
+@import 'main/menu';
+@import 'main/dashboard';
+@import 'main/connections';
+@import 'navigation/console';
+@import 'navigation/manual';
+
+@import '~sweetalert2/src/variables';
+@import '~sweetalert2/src/sweetalert2';

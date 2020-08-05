@@ -1,0 +1,16 @@
+.connections-row {
+    position: relative;
+
+    &:nth-child(1).primary::after {
+        content: "primary";
+        background: #4290dc;
+        color: white;
+        position: absolute;
+        height: 23px;
+        width: 58px;
+        text-align: center;
+        top: -5px;
+        right: -5px;
+    }
+}
+
