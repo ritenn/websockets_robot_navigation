@@ -37,12 +37,12 @@
                     </div>
                 </div>
                 <div class="row pt-5">
-                    <div v-if="configurationList.length" class="col-lg-12">
-                        <div class="form-group">
-                            <input id="connect-automatically" type="checkbox" value="1" class="form-control-checkbox" />
-                            <label class="text-success" for="connect-automatically">Connect to primary automatically</label>
-                        </div>
-                    </div>
+<!--                    <div v-if="configurationList.length" class="col-lg-12">-->
+<!--                        <div class="form-group">-->
+<!--                            <input id="connect-automatically" type="checkbox" value="1" class="form-control-checkbox" />-->
+<!--                            <label class="text-success" for="connect-automatically">Connect to primary automatically</label>-->
+<!--                        </div>-->
+<!--                    </div>-->
                     <div class="col-lg-12 text-left mb-1">
                         <button @click="switchTabs" class="btn-block btn btn-primary p-3">
                             Manage configurations <i class="fa fa-plus align-middle" aria-hidden="true"></i>

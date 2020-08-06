@@ -5,7 +5,6 @@ namespace App\Services;
 
 use App\Interfaces\Services\BaseInterface;
 use Illuminate\Support\Facades\DB;
-use phpDocumentor\Reflection\Types\Mixed_;
 
 class BaseService implements BaseInterface {
 
