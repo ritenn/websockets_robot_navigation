@@ -6,15 +6,11 @@ export const connectionService = {
     remove,
 };
 
+/**
+ * @param updateStatus
+ * @returns {Promise<Response>}
+ */
 function getList(updateStatus) {
-
-    const requestOptions = {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-type': 'application/json',
-        }
-    };
 
     let status = updateStatus ? 1 : 0;
 
@@ -26,6 +22,10 @@ function getList(updateStatus) {
         });
 }
 
+/**
+ * @param configurations
+ * @returns {Promise<Response>}
+ */
 function updateOrCreate(configurations) {
 
     const requestOptions = {
@@ -36,7 +36,7 @@ function updateOrCreate(configurations) {
         },
         body: JSON.stringify(configurations)
     };
-    // console.log(requestOptions);
+
     return fetch(`/api/configuration`, requestOptions)
         .then(handleResponse)
         .then(data => {
@@ -45,6 +45,10 @@ function updateOrCreate(configurations) {
         });
 }
 
+/**
+ * @param uuid
+ * @returns {Promise<Response>}
+ */
 function remove(uuid) {
 
     const requestOptions = {
